@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarot - Oráculo Moderno (Edição de Luxo)</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --fundo: #05050a;
+            --cartas: #1a1a2e;
+            --detalhe: #d4af37;
+            --detalhe-glow: rgba(212, 175, 55, 0.3);
+            --texto: #f1e4bc;
+        }
+
+        body { 
+            font-family: 'Georgia', serif; 
+            background: radial-gradient(circle at center, #1a1a2e 0%, var(--fundo) 100%); 
+            color: var(--detalhe); 
+            margin: 0; 
+            padding-bottom: 50px; 
+            overflow-x: hidden;
+            user-select: none; 
+            -webkit-user-select: none;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 15px; text-align: center; }
+        h1 { font-size: 2.5em; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 15px var(--detalhe-glow); margin-top: 30px; }
+
+        .box-orientacoes {
+            background: rgba(26, 26, 46, 0.6);
+            border: 1px solid var(--detalhe-glow);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            line-height: 1.8;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            text-align: left;
+        }
+
+        .pergunta-mentalizar { 
+            font-style: italic; color: var(--detalhe); display: block; margin-top: 20px; font-weight: bold;
+            border-left: 3px solid var(--detalhe); padding-left: 15px; 
+        }
+
+        .controles { margin: 20px 0; min-height: 110px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 15px; }
+
+        button { 
+            background: linear-gradient(135deg, #d4af37 0%, #aa892e 100%);
+            color: #05050a; border: none; padding: 18px 50px; font-size: 1.1em;
+            cursor: pointer; border-radius: 50px; font-weight: bold;
+            text-transform: uppercase; letter-spacing: 1px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 8px 15px rgba(0,0,0,0.4); z-index: 100;
+        }
+
+        button:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 15px 25px rgba(212, 175, 55, 0.3); }
+        .hidden { display: none !important; }
+
+        #palco { position: relative; width: 100%; height: 380px; margin: 20px 0; display: flex; justify-content: center; align-items: center; perspective: 2000px; }
+        .carta { position: absolute; width: 130px; height: 215px; cursor: pointer; transition: all 0.7s cubic-bezier(0.19, 1, 0.22, 1); transform-style: preserve-3d; z-index: 10; }
+        .face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.6); overflow: hidden; }
+        .verso { background: #1a1a2e; border: 2px solid var(--detalhe); background-image: radial-gradient(circle, var(--detalhe) 1px, transparent 1px); background-size: 15px 15px; display: flex; align-items: center; justify-content: center; font-size: 2em; }
+        .frente { background: #fff; transform: rotateY(180deg); border: 1px solid #000; }
+        .frente img { width: 100%; height: 100%; object-fit: cover; }
+
+        .mesa { display: flex; justify-content: center; margin-top: 30px; }
+        .slot { width: 150px; height: 240px; border: 2px dashed rgba(212, 175, 55, 0.2); border-radius: 15px; padding: 5px; background: rgba(255,255,255,0.02); display: flex; flex-direction: column; align-items: center; }
+
+        #analise { max-width: 850px; margin: 50px auto; padding: 40px; background: rgba(10, 10, 20, 0.95); border-radius: 25px; border: 1px solid var(--detalhe); text-align: left; display: none; box-shadow: 0 0 50px rgba(0,0,0,0.9); animation: slideUp 0.6s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .mensagem-tarot h3 { color: var(--detalhe); border-bottom: 1px solid rgba(212, 175, 55, 0.3); padding-bottom: 10px; font-size: 1.5em; margin-bottom: 20px; }
+        .secao-titulo { color: #fff; font-weight: bold; margin-top: 25px; display: block; border-left: 3px solid var(--detalhe); padding-left: 10px; font-size: 1.2em; margin-bottom: 10px; }
+        .recado-alma { font-style: italic; background: rgba(212, 175, 55, 0.1); padding: 25px; border-radius: 15px; margin-top: 30px; border: 1px dashed var(--detalhe); color: #fff; line-height: 1.6; }
+
+        #modal-zoom { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); justify-content: center; align-items: center; cursor: zoom-out; }
+        #modal-zoom img { max-height: 85vh; border-radius: 15px; border: 2px solid var(--detalhe); }
+        footer { margin-top: 60px; padding: 20px; font-size: 0.8em; color: rgba(212, 175, 55, 0.4); }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+<div class="container">
+    <h1>🔮 Oráculo Moderno</h1>
+
+    <div id="instrucoes" class="box-orientacoes">
+        <h2>Momento de Conexão</h2>
+        Respire fundo três vezes, relaxe e solte as tensões do corpo. 
+        <br><br>Após as respirações, abra os olhos e mentalize a pergunta:
+        <span class="pergunta-mentalizar">"O que eu preciso saber nesse momento sobre o meu dia de hoje, qual é o foco principal do meu dia, que desafio eu poderei estar enfrentando e qual a minha melhor ação para o dia de hoje?"</span>
+    </div>
+
+    <div class="controles">
+        <button id="btn-embaralhar" onclick="fluxoResetMisturar()">Misturar e Jogar</button>
+        <button id="btn-escolher" class="hidden" onclick="abrirLeque()">Distribuir Cartas</button>
+        <h2 id="msg-escolha" class="hidden" style="color: #fff; font-weight: normal;">Mentalize sua pergunta e escolha sua carta...</h2>
+    </div>
+
+    <div id="palco"></div>
+
+    <div class="mesa">
+        <div class="slot" id="slot-1">
+            <div style="font-size: 0.8em; color: #fff; margin-bottom: 10px; text-transform: uppercase; font-weight: bold;">Conselho do Dia</div>
+        </div>
+    </div>
+
+    <div id="analise">
+        <p style="text-align: center; color: #888; font-size: 0.9em; margin-bottom: 20px;">(Clique na carta acima para ampliar)</p>
+        <div class="mensagem-tarot" id="txt-conselho"></div>
+    </div>
+
+    <footer>&copy; 2026 Manuscrito do Oráculo Moderno. Todos os direitos reservados.</footer>
+</div>
+
+<div id="modal-zoom" onclick="fecharZoom()">
+    <img id="img-ampliada" src="" alt="Carta Ampliada">
+</div>
+
+<script>
+const baralhoMaster = [
+    { n: "0. O Louco: \"O Salto da Fé\"", img: "imagens/O_O_LOUCO.webp", txt: "Sabe aquele frio na barriga de quando a gente está prestes a fazer algo totalmente novo? É exatamente essa a energia que vai guiar o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está livre de amarras. Ele não quer saber de planos complicados, de passado ou de \"e se der errado?\". A energia dominante é a da pureza e da entrega. O Louco na escola inglesa nos ensina que, para o espírito, o risco não existe, existe apenas a experiência. Você está no \"ponto zero\", onde tudo é possível.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Confie no invisível:</strong> Se surgir uma oportunidade ou um impulso de fazer algo diferente, não tente racionalizar demais. Seu espírito está te pedindo um voto de confiança.<br>• <strong>Caminhe com leveza:</strong> Não carregue pesos que não são seus. Hoje é dia de viajar com a \"mochila leve\".<br>• <strong>Esteja no agora:</strong> O Louco não olha para trás. Viva o dia de hoje como se fosse um papel em branco. Se sentir vontade de rir do nada ou mudar o caminho de volta para casa, faça isso!<br><div class='recado-alma'><strong>O recado da alma:</strong> \"Vá até a beira do precipício com um sorriso. O universo vai colocar o chão sob seus pés assim que você der o passo.\"</div>" },
+    { n: "I. O Mago: \"O Alquimista da Realidade\"", img: "imagens/I_O_MAGO.webp", txt: "Sabe aqueles dias em que você sente que todas as peças do quebra-cabeça estão na sua mão e que, se você dar o primeiro passo, o caminho vai se abrir como mágica? Como se você tivesse um \"superpoder\" de transformar uma ideia em algo real? Essa é a energia vibrante e cheia de recursos do Mago que vai impulsionar o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em modo \"eu posso e eu faço\". A energia dominante é a da força de vontade e do potencial infinito. Na escola inglesa, o Mago tem sobre a mesa todos os quatro elementos (a taça, a espada, o ouro e o bastão), o que significa que você já tem tudo o que precisa para fazer o que quer. Seu espírito não está mais apenas sonhando; ele está pronto para agir com intenção. É um momento de foco, agilidade mental e muita capacidade de comunicação.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Use as ferramentas que você já tem:</strong> Não espere pelo \"momento perfeito\". Use o que está à mão agora. Você é muito mais capacitado do que imagina.<br>• <strong>Foque na sua intenção:</strong> Onde você colocar a sua atenção hoje, a energia vai fluir. Escolha um objetivo claro e direcione sua vontade para ele. O universo está pronto para dizer \"sim\" para a sua iniciativa.<br>• <strong>Comunique-se com clareza:</strong> Hoje é um excelente dia para vender uma ideia ou negociar algo. Sua fala está carregada de um magnetismo que convence e encanta.<br>• <strong>Dê o primeiro passo:</strong> O Mago inicia processos. Se existe algo que você está adiando, use a energia de hoje para apenas começar. O movimento gera movimento.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"O poder está nas suas mãos, literalmente. Você é o canal entre o que você imagina e o que o mundo vê. Acredite na sua magia.\"</div>" },
+    { n: "II. A Sacerdotisa: \"O Silêncio que Tudo Sabe\"", img: "imagens/II_A_SACERDOTISA.webp", txt: "Sabe aqueles dias em que a gente sente que existe algo a mais acontecendo \"nas entrelinhas\"? Essa é a energia da Sacerdotisa que vai abraçar o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito não quer barulho, ele quer profundidade. A energia dominante é a da intuição pura e do mistério. Na escola inglesa, a Sacerdotisa representa aquele conhecimento que vem do silêncio da alma. Seu espírito está agindo como um lago calmo e profundo: ele está captando tudo e sentindo as vibrações. É um momento de pausa sagrada entre o pensar e o agir.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Ouça a sua voz interior:</strong> Se você sentir um \"aperto\" ou um \"alívio\" inexplicável, confie. Sua intuição está mais afiada do que nunca.<br>• <strong>Não tenha pressa de decidir:</strong> O mundo pode estar te cobrando respostas, mas a Sacerdotisa diz: \"Ainda não\". Algumas coisas precisam amadurecer no escuro.<br>• <strong>Observe os sinais:</strong> Preste atenção aos seus sonhos ou a pensamentos que surgem do nada. O universo está tentando falar com você através de símbolos.<br>• <strong>Mantenha o seu mistério:</strong> Você não precisa contar todos os seus planos hoje. Guardar a sua energia para si mesma vai te dar uma força imensa.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"Feche os olhos para enxergar melhor. A resposta que você busca não está no mundo lá fora, mas no silêncio que mora dentro de você.\"</div>" },
+    { n: "III. A Imperatriz: \"O Florescer da Vida\"", img: "imagens/III_A_IMPERATRIZ.webp", txt: "Sabe aqueles dias em que a gente acorda sentindo que a vida está pulsando mais forte? Essa é a energia generosa da Imperatriz que vai nutrir o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em modo de expansão e fertilidade. A energia dominante é a da criação e da abundância sensorial. Na escola inglesa, a Imperatriz é a personificação do amor que se manifesta na matéria. Seu espírito não quer apenas \"pensar\", ele quer \"sentir\" e \"nutrir\". É um momento de grande magnetismo.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Coloque as mãos na massa:</strong> Seja um projeto, uma receita ou cuidar das suas plantas, hoje é dia de manifestar sua criatividade.<br>• <strong>Cuide do seu templo:</strong> Seu corpo é o jardim da sua alma. Trate-se com carinho. Coma algo que te dê prazer, use uma roupa que te faça sentir bem.<br>• <strong>Seja o colo para alguém:</strong> Sua energia está muito acolhedora. Um gesto de gentileza vindo de você pode ser o adubo que alguém estava precisando.<br>• <strong>Confie no tempo da colheita:</strong> A Imperatriz sabe que tudo tem seu tempo de gestação. Não tente apressar as coisas; continue nutrindo seus sonhos com amor.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"Você é um canal de beleza e abundância. Deixe a vida fluir através de você e confie que o universo é um jardim generoso.\"</div>" },
+    { n: "IV. O Imperador: \"O Arquiteto da sua Própria Ordem\"", img: "imagens/IV_O_IMPERADOR.webp", txt: "Sabe aqueles dias em que a gente sente que precisa parar de apenas \"sentir\" e começar a \"fazer as coisas funcionarem\"? Essa é a energia firme e protetora do Imperador que vai guiar o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está buscando estrutura e segurança. A energia dominante é a da autoridade pessoal, da lógica e do discernimento. Na escola inglesa, o Imperador é aquele que constrói os muros que protegem o jardim. Seu espírito não quer saber de dúvidas; ele está pronto para olhar para os desafios de frente e dizer: \"Eu dou conta disso\". É um momento de muita força mental.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Assuma as rédeas:</strong> Se existe algo que está meio bagunçado na sua rotina, hoje é o dia de colocar ordem. Não espere pelos outros.<br>• <strong>Aprenda a dizer \"não\":</strong> Definir limites claros hoje não é ser rude, é ser respeitoso com a sua própria energia.<br>• <strong>Seja estratégico:</strong> Em vez de agir pela emoção, pense no plano mais lógico. A razão será a sua maior aliada para resolver qualquer pendência.<br>• <strong>Proteja o que é seu:</strong> Dedique um tempo para cuidar das suas responsabilidades e finanças. Sua postura firme passará confiança para todos ao redor.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"Você é o mestre do seu destino. Construa sua vida sobre bases sólidas e não tenha medo de exercer o seu poder com justiça.\"</div>" },
+    { n: "V. O Hierofante: \"A Ponte para a Sabedoria\"", img: "imagens/V_O_HIEROFANTE.webp", txt: "Sabe aqueles dias em que a gente sente uma vontade de entender o \"porquê\" das coisas? Essa é a energia do Hierofante que vai caminhar ao lado do seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em busca de sentido e conexão com o que é sagrado ou tradicional. A energia dominante é a do aprendizado e dos valores éticos. Na escola inglesa, o Hierofante faz a ponte entre o céu e a terra. Seu espírito não quer \"inventar a roda\" hoje; ele quer se apoiar em sabedorias que já foram testadas. É um momento de muita integridade.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Ouça quem sabe mais:</strong> Se estiver com uma dúvida, procure um mentor ou um livro inspirador. Hoje, ser um bom aluno é o caminho para o sucesso.<br>• <strong>Crie pequenos rituais:</strong> Trazer um pouco de ritual para a sua rotina, como organizar sua mesa ou meditar, vai te dar um conforto emocional enorme.<br>• <strong>Faça o que é certo:</strong> A energia do Hierofante pede ética. Siga os seus princípios e as regras do jogo. Isso trará uma paz que nenhum atalho traria.<br>• <strong>Conecte-se com o seu grupo:</strong> Busque o sentimento de pertencer a algo maior do que você, seja na família ou no trabalho.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"A sabedoria mora no que é simples e tradicional. Honre o seu caminho e não tenha medo de pedir um mapa para quem já trilhou essa estrada antes.\"</div>" },
+    { n: "VI. Os Enamorados: \"O Chamado do Coração\"", img: "imagens/VI_OS_ENAMORADOS.webp", txt: "Sabe aqueles dias em que a vida nos coloca diante de uma encruzilhada como um convite para sermos verdadeiros? Essa é a energia vibrante dos Enamorados que vai guiar o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está buscando alinhamento e harmonia. A energia dominante é a da escolha consciente. Na escola inglesa, essa carta fala da união entre o que você pensa e o que você sente. Seu espírito quer que a sua mente e o seu coração caminhem de mãos dadas. É um momento de grande beleza interior.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Escolha com a alma:</strong> Se precisar tomar uma decisão hoje, pergunte-se se isso combina com os seus valores. Escolha pelo que te faz sentir inteiro.<br>• <strong>Cultive as conexões:</strong> É um dia maravilhoso para estar com pessoas que te fazem bem. Olhe nos olhos e ouça com atenção.<br>• <strong>Busque o equilíbrio:</strong> Se você está se sentindo dividido, tente encontrar o ponto de união. Às vezes, a resposta é como integrar as duas partes.<br>• <strong>Seja autêntico:</strong> Não tente agradar a todo mundo. Quando você é verdadeiro, as pessoas certas se aproximam naturalmente.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"Toda escolha é um ato de amor próprio. Confie no que o seu coração sopra e o universo conspirará a seu favor.\"</div>" },
+    { n: "VII. O Carro: \"O Mestre da Própria Direção\"", img: "imagens/VII_O_CARRO.webp", txt: "Sabe aqueles dias em que a gente acorda sentindo que \"agora vai\"? Essa é a energia de determinação e triunfo do Carro que vai impulsionar o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em modo de conquista e foco total. A energia dominante é a da vontade direcionada. Na escola inglesa, o Carro nos mostra que você tem duas forças internas (emocional e racional) trabalhando juntas. Você está conduzindo a sua vida com autoridade. É um momento de superação através da autodisciplina.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Foque no seu objetivo:</strong> Não se deixe distrair por barulhos laterais. Escolha uma meta para hoje e siga nela até o fim.<br>• <strong>Controle os impulsos:</strong> Se sentir que as emoções estão tentando te puxar para um lado, respire fundo. Você é quem manda.<br>• <strong>Movimente-se:</strong> Se algo estava parado, hoje é o dia de dar o empurrão final. Você tem a energia necessária para fazer as coisas andarem.<br>• <strong>Acredite no seu sucesso:</strong> A vitória do Carro vem do esforço consciente. Sinta-se vitorioso antes mesmo de chegar lá.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"Você é o condutor da sua própria história. Ajuste o foco, segure firme as rédeas e avance com coragem.\"</div>" },
+    { n: "VIII. A Justiça: \"O Equilíbrio da Verdade\"", img: "imagens/VIII_A_JUSTIÇA.webp", txt: "Sabe aqueles dias em que a poeira baixa e a gente finalmente consegue enxergar as coisas exatamente como elas são? Essa é a energia firme da Justiça que vai guiar o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em busca de integridade e clareza. A energia dominante é a da \"Causa e Efeito\". Na escola inglesa, a Justiça nos lembra que cada ação gera uma reação. Seu espírito hoje quer o equilíbrio e a honestidade nua e crua. É um momento de assumir a responsabilidade pelas suas escolhas.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Seja honesto com você mesmo:</strong> Não tente se enganar hoje. Olhe para as situações de forma objetiva. Se algo não está certo, admita.<br>• <strong>Pese os dois lados:</strong> Antes de tomar uma decisão, tente olhar a cena de fora. A imparcialidade será o seu superpoder hoje.<br>• <strong>Ajuste as contas:</strong> Se você deve um pedido de desculpas ou uma tarefa, hoje é o dia de \"limpar a mesa\". Isso trará um alívio enorme.<br>• <strong>Aceite o que vier:</strong> Entenda que o que acontece hoje é um reflexo de movimentos anteriores. Aceite como uma oportunidade de aprendizado.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"A vida é uma balança perfeita. Quando você age com integridade, o universo se encarrega de colocar cada coisa no seu lugar.\"</div>" },
+    { n: "IX. O Eremita: \"A Luz que Vem de Dentro\"", img: "imagens/IX_O_HEREMITA.webp", txt: "Sabe aqueles dias em que o mundo parece estar barulhento demais e tudo o que a gente quer é um cantinho silencioso? Essa é a energia sábia do Eremita que vai iluminar o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em busca de autenticidade. A energia dominante é a da introspecção e da prudência. Na escola inglesa, o Eremita escolhe se afastar do caos para ouvir a própria voz. Seu espírito age como um mestre que carrega sua própria luz interna. É um momento de amadurecimento e de valorizar a própria companhia.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Busque momentos de solitude:</strong> Procure pequenos intervalos de silêncio hoje. Nesse vazio, as respostas que você busca vão aparecer.<br>• <strong>Não procure fora o que está dentro:</strong> Antes de perguntar para alguém, pergunte para si mesmo: \"O que a minha experiência me diz sobre isso?\".<br>• <strong>Vá devagar:</strong> Hoje não é dia de pressa ou decisões impulsivas. Analise cada detalhe com paciência; a pressa é inimiga da sabedoria agora.<br>• <strong>Seja a sua própria luz:</strong> Não se preocupe se os outros não entenderem o seu ritmo. O que importa é você estar em paz com a sua verdade.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"O silêncio não é vazio, ele é cheio de respostas. Acenda a sua lanterna interna e confie no seu próprio brilho.\"</div>" },
+    { n: "X. A Roda da Fortuna: \"O Fluxo da Vida\"", img: "imagens/X_A_RODA DA FORTUNA.webp", txt: "Sabe aqueles dias em que a gente sente que o universo deu um peteleco no tabuleiro? Essa é a energia dinâmica da Roda da Fortuna que vai agitar o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está surfando na onda do movimento. A energia dominante é a da mudança e dos ciclos. Na escola inglesa, a Roda nos lembra que nada é estático. Seu espírito hoje sente que a sorte está no ar, mas é uma sorte que exige desapego. A alma está aprendendo a confiar no ritmo do universo e nas reviravoltas.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Vá com o fluxo:</strong> Não tente nadar contra a corrente hoje. Se os planos mudarem, respire e se adapte. O imprevisto pode ser um caminho melhor.<br>• <strong>Esteja aberto às coincidências:</strong> Fique atento aos encontros casuais ou telefonemas inesperados. Hoje, o acaso é o seu melhor amigo.<br>• <strong>Mantenha o seu centro:</strong> No meio da roda que gira, o único lugar calmo é o eixo central. Não se empolgue nem se desespere demais.<br>• <strong>Aproveite a boa fase:</strong> Se uma porta se abrir, entre! A Roda da Fortuna favorece quem aproveita o momento certo (o timing).<br><div class='recado-alma'><strong>O recado da alma:</strong> \"A vida é um ciclo eterno de começos e fins. Deixe a roda girar com leveza e confie que o universo sabe o caminho.\"</div>" },
+    { n: "XI. A Força: \"A Coragem que Vem do Carinho\"", img: "imagens/XI_A_FORÇA.webp", txt: "Sabe aqueles dias em que a gente tem um desafio grande, mas sente uma calma profunda e certeza de que vai dar conta? Essa é a energia mansa da Força que vai envolver o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em um momento de autodomínio e resiliência. A energia dominante não é a agressividade, mas a força interior. Na escola inglesa, a mulher doma o leão com suavidade e um sorriso. Seu espírito hoje é capaz de acolher seus próprios medos e transformá-los em coragem. É um dia de fé inabalável em si mesmo.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Domine o seu \"leão\" interno:</strong> Se você sentir raiva ou ansiedade, não tente sufocar. Olhe para esses sentimentos com carinho e assuma o comando.<br>• <strong>Use a suavidade:</strong> Se tiver uma conversa difícil, tente a abordagem mais gentil. Um tom de voz baixo abre portas que a força bruta jamais abriria.<br>• <strong>Seja paciente consigo:</strong> Nem tudo se resolve na correria. Continue tentando com doçura e firmeza; você vencerá pela persistência.<br>• <strong>Acredite na sua resiliência:</strong> Sinta essa energia de \"leão domado\" dentro de você. Nada é capaz de te tirar do sério se você decidir manter a paz.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"A verdadeira força não faz barulho; ela é feita de paciência e amor próprio. Acaricie seus medos e eles perderão o poder.\"</div>" },
+    { n: "XII. O Pendurado: \"A Pausa Sagrada\"", img: "imagens/XII_O_PENDURADO.webp", txt: "Sabe aqueles dias em que você tenta empurrar uma porta e ela não abre, mas quando você para e observa, percebe que ela abre para o outro lado? Essa é a energia do Pendurado que vai visitar seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito não quer pressa. A energia dominante é a da suspensão. Na escola inglesa, o Pendurado está sereno pois descobriu que ao parar de lutar contra o tempo, ganhou sabedoria. Seu espírito entende que o \"não fazer\" também é poderoso. É um momento de ver o mundo sob um novo ângulo.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Solte o controle:</strong> Se algo não está andando, não force. Deixe as coisas suspensas por um momento; a resposta virá quando você parar de procurar.<br>• <strong>Mude o ponto de vista:</strong> Tente olhar para aquele problema de um jeito totalmente diferente. Ver a vida sob outro ângulo revela saídas geniais.<br>• <strong>Pratique o sacrifício amoroso:</strong> Pense no que você pode desapegar hoje para ter mais paz amanhã. Às vezes é preciso abrir mão de uma pequena vontade.<br>• <strong>Aceite a espera:</strong> Não veja a demora como castigo, mas como preparação. Use esse tempo para meditar ou apenas observar a vida sem julgamentos.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"Render-se não é desistir; é confiar que existe um fluxo maior cuidando de tudo. Pare de lutar e a luz da compreensão brilhará.\"</div>" },
+    { n: "XIII. A Morte: \"O Renascer das Cinzas\"", img: "imagens/XIII_A MORTE.webp", txt: "No Tarot, a Morte quase nunca fala de algo físico, mas sim de uma limpeza profunda para que algo novo cresça com mais força. É exatamente isso que o seu espírito está fazendo nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em modo de purificação e renovação. A energia dominante é a da transformação inevitável. Na escola inglesa, a bandeira com a rosa branca simboliza novos começos após um fim. Seu espírito sente que é hora de soltar o que está pesado e não serve mais. É um momento de desapego total.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Deixe ir sem medo:</strong> Se algo chegar ao fim hoje, aceite com gratidão. Quanto mais rápido você soltar o velho, mais rápido o novo chegará.<br>• <strong>Faça uma limpeza:</strong> Pode ser física ou mental. Limpar o ambiente ou decidir não alimentar um pensamento negativo ajuda a alma a transitar.<br>• <strong>Não resista à mudança:</strong> Tentar manter as coisas como estão só gera cansaço. Confie que o que sai da sua vida está abrindo caminho para algo melhor.<br>• <strong>Acolha o vazio:</strong> Entre o que acaba e o que começa existe um silêncio. Sinta o alívio de estar mais leve e não tenha pressa de preencher o espaço.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"Para o sol nascer, a noite precisa acabar. Não tema os fins; eles são o adubo para as flores que vão brotar amanhã na sua vida.\"</div>" },
+    { n: "XIV. A Temperança: \"A Arte do Equilíbrio\"", img: "imagens/XIV_A_TEMPERANÇA.webp", txt: "Sabe aqueles dias em que você sente que, finalmente, as coisas estão encontrando o lugar certo? Essa é a energia de cura e harmonia da Temperança que vai envolver seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em modo de alquimia e moderação. A Temperança vem para cicatrizar. Na escola inglesa, o anjo mistura dois líquidos mostrando que a vida é feita de doses certas. A energia dominante é a da paciência e cooperação. Seu espírito hoje tem a habilidade mágica de unir opostos.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Busque o caminho do meio:</strong> Hoje não é dia de extremos. Procure o equilíbrio e a moderação em suas ações e reações.<br>• <strong>Tenha paciência com o tempo:</strong> A Temperança flui como um rio tranquilo. Não tente apressar a química do destino; os ingredientes estão se misturando.<br>• <strong>Misture e adapte:</strong> Seja flexível. É um excelente dia para conciliar conflitos ou fazer as pazes com alguém, agindo com diplomacia.<br>• <strong>Cuide da sua saúde:</strong> Essa carta fala muito de cura. Trate seu corpo e mente com a calma que eles merecem. É um dia de restauração.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"A vida não precisa ser uma luta constante. Quando você equilibra suas emoções, tudo flui. Seja o seu próprio alquimista.\"</div>" },
+    { n: "XV. O Diabo: \"Encarando as Nossas Próprias Amarras\"", img: "imagens/XV_O_DIABO.webp", txt: "O Diabo no Tarot fala sobre as coisas que a gente mesmo cria e que acabam prendendo a nossa liberdade, como um mau hábito ou uma preocupação excessiva. É essa energia que seu espírito processa nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está lidando com as sombras e os apegos. A energia dominante é a da intensidade material. Na escola inglesa, as correntes nos pescoços estão frouxas — as pessoas poderiam sair, mas não saem. Seu espírito mostra onde você se sente preso por escolha própria. É um dia de magnetismo vital.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Olhe para as suas correntes:</strong> Pergunte-se o que está te tirando a paz. Perceba que a chave da cela está na sua própria mão.<br>• <strong>Não se leve tão a sério:</strong> O Diabo também fala de humor. Se as coisas estiverem pesadas, tente rir da situação e não deixe o drama dominar.<br>• <strong>Cuidado com os excessos:</strong> Hoje a tentação de gastar, comer ou reclamar demais estará alta. Aproveite o que é bom sem se tornar escravo disso.<br>• <strong>Encare a sua sombra:</strong> Todo mundo tem um lado difícil. Admitir o que você sente faz com que a sombra perca o poder sobre você.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"A única coisa que realmente te prende é o medo de ser livre. As correntes estão soltas; você pode caminhar para fora a hora que quiser.\"</div>" },
+    { n: "XVI. A Torre: \"A Libertação Pelo Choque de Realidade\"", img: "imagens/XVI_A_TORRE.webp", txt: "A Torre é o universo dando um empurrãozinho para você desapegar daquilo que já não faz bem. Nas próximas 24 horas, seu espírito está passando por um despertar súbito que limpa o ar abafado.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em modo de ruptura e libertação. A energia dominante é a da verdade que chega sem avisar. Na escola inglesa, a Torre representa estruturas falsas que construímos. Seu espírito está chacoalhando essas paredes para se libertar de uma prisão que ficou pequena.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Não tente segurar os escombros:</strong> Se um plano der errado ou uma verdade aparecer, deixe cair. Se caiu, é porque não tinha uma base verdadeira.<br>• <strong>Agradeça pelo \"raio\":</strong> Às vezes o que parece um desastre é um livramento que tira do caminho o que te impedia de crescer. Veja a clareza que fica.<br>• <strong>Mantenha a calma no caos:</strong> Se o dia parecer caótico, seja o centro do furacão. Essa sacudida é necessária para construir algo mais real amanhã.<br>• <strong>Fale a verdade:</strong> A energia da Torre não tolera máscaras. Seja honesto com você e com os outros; a verdade é o único chão firme hoje.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"O que é verdadeiro não cai. Deixe o que é falso ir embora, pois assim você terá espaço para construir sobre a rocha.\"</div>" },
+    { n: "XVII. A Estrela: \"O Bálsamo da Esperança\"", img: "imagens/XVII_A_ESTRELA.webp", txt: "Sabe aquele momento logo depois de uma tempestade forte, em que o céu se abre e a primeira estrela começa a brilhar? É exatamente esse o alívio que o seu espírito vai sentir nas próximas 24 horas. O universo traz o silêncio que cura.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em um estado de paz profunda e inspiração. A energia dominante é a da esperança renovada. Na escola inglesa, a mulher derrama água confiando na fonte infinita. Seu espírito sente-se conectado com o cosmos. É um momento de luz interna suave e harmonia com o seu destino.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Confie no amanhã:</strong> Se você passou por dias difíceis, a Estrela é o sinal de que o pior já passou. Mantenha a fé e siga os sinais do universo.<br>• <strong>Seja autêntico:</strong> Hoje é um dia para brilhar sem máscaras. Sua transparência e verdade serão os seus maiores encantos e guias.<br>• <strong>Dê um tempo para a cura:</strong> Procure atividades que tragam paz se estiver cansado. Deixe a energia de renovação lavar suas preocupações.<br>• <strong>Siga a sua inspiração:</strong> Siga a ideia que faz seu coração vibrar de forma calma. É um excelente dia para planejar o futuro com otimismo.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"Você nunca está sozinho. Existe uma luz lá no alto e uma luz aqui dentro de você que nunca se apagam. Confie e deixe a paz ser o seu guia.\"</div>" },
+    { n: "XVIII. A Lua: \"Navegando pelos Mistérios da Alma\"", img: "imagens/XVIII_A_LUA.webp", txt: "Sabe aqueles dias em que o mundo parece meio embaçado e a intuição fica aflorada? Essa é a energia profunda da Lua que vai visitar o seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está mergulhado no subconsciente. A energia dominante é a da percepção emocional. Na escola inglesa, aprendemos que nem tudo é o que parece sob o luar. Seu espírito está captando mensagens que a lógica não lê. Podem surgir medos antigos, mas reconheça-os como parte de uma limpeza emocional.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Confie no seu feeling:</strong> Se sentir que algo está estranho, não ignore, mas não tire conclusões precipitadas. A verdade gosta de brincar de esconde-esconde hoje.<br>• <strong>Acolha sua imaginação:</strong> Seus sonhos e emoções podem estar oscilantes como as marés. Tudo bem não ser linear hoje; apenas sinta o caminho.<br>• <strong>Não tome decisões definitivas:</strong> Como a luz da lua é instável, este não é o melhor dia para grandes contratos. Espere a clareza do sol voltar para agir.<br>• <strong>Encare o desconhecido com doçura:</strong> Se o medo aparecer, trate-o com doçura e respire fundo. Você está em um processo de limpeza profunda.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"Nem tudo que é real pode ser visto com os olhos. Mergulhe nas suas águas internas e deixe a intuição ser a sua bússola através da névoa.\"</div>" },
+    { n: "XIX. O Sol: \"A Alegria de ser Quem Você É\"", img: "imagens/XIX_O_SOL.webp", txt: "Sabe aquele dia em que você acorda e tudo parece vibrante e cheio de vida? Essa é a energia do Sol, a carta mais positiva do Tarot, que vai iluminar seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em estado de clareza total e celebração. A energia dominante é a da vitalidade e do sucesso. Na escola inglesa, o Sol mostra que a alma recuperou a confiança. Seu espírito não quer se esconder, ele quer brilhar e espalhar calor e verdade por onde passar.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Brilhe sem medo:</strong> Mostre seus talentos e fale suas ideias. Deixe as pessoas verem a sua luz; hoje não é dia para modéstia.<br>• <strong>Seja transparente:</strong> O Sol ilumina tudo, então não há espaço para segredos. Seja direto, sincero e aja sempre com o coração aberto.<br>• <strong>Aproveite o agora:</strong> Foque na alegria simples e esteja presente. O sucesso hoje vem de estar grato pelas coisas boas que já cercam você.<br>• <strong>Dê vida aos projetos:</strong> Se você estava esperando o momento certo para começar algo, esse momento é agora. A energia está super favorável para iniciativas.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"A escuridão acabou. Você merece toda a felicidade que está batendo à sua porta. Sorria para a vida, e ela sorrirá de volta para você.\"</div>" },
+    { n: "XX. O Julgamento: \"O Despertar da Alma\"", img: "imagens/XX_O_JULGAMENTO.webp", txt: "Sabe aquele momento em que a ficha finalmente cai e você sente um chamado para começar uma vida mais verdadeira? Essa é a energia de renascimento do Julgamento que tocará seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está passando por um despertar. A energia dominante é a da libertação de velhos pesos. Na escola inglesa, o fim de uma fase limitada é anunciado. Seu espírito recupera a consciência de quem você realmente é, convidando você ao autoperdão e honestidade espiritual.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Ouça o seu chamado:</strong> Sabe aquela vontade de mudar algo importante? Não ignore. Seu espírito está soprando na direção de uma consciência mais elevada.<br>• <strong>Perdoe-se e siga em frente:</strong> Se tem se culpado por algo, o Julgamento diz: \"Basta\". Aprenda a lição, deixe a culpa no passado e se liberte hoje.<br>• <strong>Tome decisões definitivas:</strong> A energia favorece resoluções importantes. Se algo estava em cima do muro, hoje você terá a clareza para bater o martelo.<br>• <strong>Celebre seu amadurecimento:</strong> Olhe para o quanto você cresceu e orgulhe-se da pessoa que se tornou. Reconheça as batalhas que você já venceu.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"A trombeta tocou para você. Deixe o que morreu para trás e levante-se para a sua melhor versão. É uma nova chance de ser feliz.\"</div>" },
+    { n: "XXI. O Mundo: \"A Dança da Plenitude\"", img: "imagens/XXI_O_MUNDO.webp", txt: "Sabe aquela sensação maravilhosa de quando você conclui um ciclo com sucesso e sente que está tudo bem no seu mundo? Essa é a energia de completude que envolverá seu espírito nas próximas 24 horas.<br><br><span class='secao-titulo'>A Energia do seu Espírito:</span> Hoje, seu espírito está em estado de integração. Na escola inglesa, a figura cercada pelos quatro elementos mostra que sua alma se sente em casa no universo. A energia dominante é a da harmonia e do sucesso vindo do esforço. Você se sente conectado com o todo e os limites desaparecem.<br><br><span class='secao-titulo'>O Conselho para o seu Dia:</span><br>• <strong>Celebre a sua vitória:</strong> Reconheça o que você concluiu, por menor que seja. Sinta o prazer do dever cumprido e colha os louros hoje.<br>• <strong>Sinta-se em expansão:</strong> O Mundo fala de horizontes largos. Se puder, mude de ares hoje para sentir que o mundo é grande e você faz parte dele.<br>• <strong>Integre as suas lições:</strong> Veja como todas as suas experiências passadas te trouxeram até esta clareza. Use toda essa sabedoria a seu favor agora.<br>• <strong>Prepare-se para o novo:</strong> Todo fim é a semente de um começo. Mas antes de pular para o próximo desafio, permita-se apenas ser e estar pleno no agora.<br><div class='recado-alma'><strong>O recado da alma:</strong> \"O universo está sorrindo para você porque você aprendeu a sorrir para si mesmo. Dance no seu ritmo e celebre a sua chegada.\"</div>" }
+];
+
+let cartasEscolhidasCount = 0;
+
+function inicializarBaralho() {
+    const palco = document.getElementById('palco');
+    palco.innerHTML = '';
+    document.getElementById('analise').style.display = 'none';
+    cartasEscolhidasCount = 0;
+    const deckMisturado = [...baralhoMaster].sort(() => Math.random() - 0.5);
+    deckMisturado.forEach((info, i) => {
+        const div = document.createElement('div');
+        div.className = 'carta';
+        div.style.zIndex = i;
+        div.dataset.info = JSON.stringify(info);
+        div.innerHTML = `<div class="face verso">✨</div><div class="face frente"><img src="${info.img}" alt="${info.n}"></div>`;
+        div.onclick = () => clicarNaCarta(div);
+        palco.appendChild(div);
+    });
+}
+
+async function fluxoResetMisturar() {
+    inicializarBaralho();
+    document.getElementById('btn-embaralhar').classList.add('hidden');
+    document.getElementById('instrucoes').classList.add('hidden');
+    const cartas = document.querySelectorAll('.carta');
+    for(let j=0; j<2; j++) {
+        cartas.forEach(c => {
+            const rx = (Math.random()-0.5)*300;
+            const ry = (Math.random()-0.5)*50;
+            c.style.transform = `translate(${rx}px, ${ry}px) rotate(${(Math.random()-0.5)*60}deg)`;
+        });
+        await new Promise(r => setTimeout(r, 400));
+    }
+    cartas.forEach(c => c.style.transform = `translate(0,0) rotate(0deg)`);
+    document.getElementById('btn-escolher').classList.remove('hidden');
+}
+
+function abrirLeque() {
+    const cartas = document.querySelectorAll('.carta');
+    const containerWidth = document.getElementById('palco').offsetWidth * 0.9;
+    const step = containerWidth / (cartas.length - 1);
+    cartas.forEach((c, i) => {
+        const x = (i * step) - (containerWidth / 2);
+        const rot = (i - (cartas.length / 2)) * 0.8; 
+        c.style.transform = `translateX(${x}px) rotate(${rot}deg)`;
+    });
+    document.getElementById('btn-escolher').classList.add('hidden');
+    document.getElementById('msg-escolha').classList.remove('hidden');
+}
+
+function clicarNaCarta(el) {
+    if (cartasEscolhidasCount >= 1) return;
+    cartasEscolhidasCount++;
+    const info = JSON.parse(el.dataset.info);
+    const slot = document.getElementById(`slot-1`);
+    const sRect = slot.getBoundingClientRect();
+    const pRect = document.getElementById('palco').getBoundingClientRect();
+    const dX = (sRect.left + sRect.width/2) - (pRect.left + pRect.width/2);
+    const dY = (sRect.top + sRect.height/2) - (pRect.top + pRect.height/2);
+    el.style.zIndex = 500;
+    el.style.transform = `translate(${dX}px, ${dY}px) rotateY(180deg) scale(1.15)`;
+    el.onclick = () => abrirZoom(info.img);
+    document.getElementById('analise').style.display = 'block';
+    document.getElementById('txt-conselho').innerHTML = `<h3>${info.n}</h3>${info.txt}`;
+    document.getElementById('btn-embaralhar').classList.remove('hidden');
+    document.getElementById('btn-embaralhar').innerText = "Nova Tiragem";
+}
+
+function abrirZoom(src) {
+    document.getElementById('img-ampliada').src = src;
+    document.getElementById('modal-zoom').style.display = "flex";
+}
+
+function fecharZoom() {
+    document.getElementById('modal-zoom').style.display = "none";
+}
+
+window.onload = inicializarBaralho;
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log("App Pronto para uso Offline!"))
+      .catch(err => console.log("Erro no App:", err));
+  }
+</script>
+</body>
+</html>
